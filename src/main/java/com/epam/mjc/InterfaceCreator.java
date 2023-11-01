@@ -9,61 +9,31 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InterfaceCreator {
 
     public Predicate<List<String>> isValuesStartWithUpperCase() {
-        return x -> {
-            for (String s : x) {
-                if (!Character.isUpperCase(s.charAt(0))) {
-                    return false;
-                }
-            }
-            return true;
-        };
+        return list -> list.stream().allMatch(s -> Character.isUpperCase(s.charAt(0)));
     }
 
     public Consumer<List<Integer>> addEvenValuesAtTheEnd() {
-        return x -> {
-            ArrayList<Integer> evenNumbers = new ArrayList<>();
-            for (Integer i : x) {
-                if (i % 2 == 0) {
-                    evenNumbers.add(i);
-                }
-            }
-            x.addAll(evenNumbers);
-        };
+        return list -> list.addAll(list.stream().filter(i -> i % 2 == 0).collect(Collectors.toList()));
     }
 
     public Supplier<List<String>> filterCollection(List<String> values) {
-        return () -> {
-            List<String> result = new ArrayList<>();
-            for (String s : values) {
-                if (Character.isUpperCase(s.charAt(0)) && s.endsWith(".") && s.split(" ").length > 3) {
-                    result.add(s);
-                }
-            }
-            return result;
-        };
+        return () -> values.stream()
+                .filter(s -> Character.isUpperCase(s.charAt(0)) && s.endsWith(".") && s.split(" ").length > 3)
+                .collect(Collectors.toList());
     }
 
     public Function<List<String>, Map<String, Integer>> stringSize() {
-        return x -> {
-            Map<String, Integer> map = new HashMap<>();
-            for (String s : x) {
-                if (!map.containsKey(s)) {
-                    map.put(s, s.length());
-                }
-            }
-            return map;
-        };
+        return x -> x.stream().collect(Collectors.toMap(s -> s, String::length));
     }
 
     public BiFunction<List<Integer>, List<Integer>, List<Integer>> concatList() {
-        return (list1, list2) -> {
-            List<Integer> resultList = new ArrayList<>(list1);
-            resultList.addAll(list2);
-            return resultList;
-        };
+        return (list1, list2) ->
+            Stream.concat(list1.stream(), list2.stream()).collect(Collectors.toList());
     }
 }
